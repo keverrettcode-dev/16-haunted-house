@@ -2,20 +2,21 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { Timer } from "three/addons/misc/Timer.js";
 import GUI from "lil-gui";
+import { ThreeMFLoader } from "three/examples/jsm/Addons.js";
 
 /**
  * Base
  */
-// Debug
+// Debug------------------------------
 const gui = new GUI();
 
-// Canvas
+// Canvas------------------------------
 const canvas = document.querySelector("canvas.webgl");
 
-// Scene
+// Scene------------------------------
 const scene = new THREE.Scene();
 
-//Floor
+// Floor------------------------------
 const floor = new THREE.Mesh(
   new THREE.PlaneGeometry(20, 20),
   new THREE.MeshStandardMaterial(),
@@ -24,20 +25,77 @@ const floor = new THREE.Mesh(
 floor.rotation.x = -Math.PI * 0.5;
 scene.add(floor);
 
-/**
- * House
- */
-// Temporary sphere
-const sphere = new THREE.Mesh(
-  new THREE.SphereGeometry(1, 32, 32),
-  new THREE.MeshStandardMaterial({ roughness: 0.7 }),
+// House Structure Start------------------------------
+const house = new THREE.Group();
+scene.add(house);
+
+//Walls
+const walls = new THREE.Mesh(
+  new THREE.BoxGeometry(4, 2.5, 4),
+  new THREE.MeshStandardMaterial(),
 );
-scene.add(sphere);
+walls.position.y = 1.25;
+house.add(walls);
+
+//Roof
+const roof = new THREE.Mesh(
+  new THREE.ConeGeometry(3.5, 1.5, 4),
+  new THREE.MeshStandardMaterial(),
+);
+roof.position.y = 2.5 + 0.75;
+roof.rotation.y = Math.PI / 2 / 2;
+roof.position.x = 0.3;
+house.add(roof);
+
+//Door
+const door = new THREE.Mesh(
+  new THREE.PlaneGeometry(2.2, 2.2),
+  new THREE.MeshStandardMaterial({ color: "red" }),
+);
+door.position.y = 1;
+door.position.z = 2.01;
+house.add(door);
+
+// House Structure End------------------------------
+
+// Bushes--------------------------------
+const bushGeometry = new THREE.SphereGeometry(1, 16, 16);
+const bushMaterial = new THREE.MeshStandardMaterial();
+
+const bush1 = new THREE.Mesh(bushGeometry, bushMaterial);
+bush1.scale.set(0.5, 0.5, 0.5);
+bush1.position.set(0.8, 0.2, 2.2);
+house.add(bush1);
+
+const bush2 = new THREE.Mesh(bushGeometry, bushMaterial);
+bush1.scale.set(0.25, 0.25, 0.25);
+bush1.position.set(1.4, 0.1, 2.1);
+house.add(bush2);
+
+const bush3 = new THREE.Mesh(bushGeometry, bushMaterial);
+bush1.scale.set(1.25, 1.25, 1.25);
+bush1.position.set(4.4, 0.1, 2.1);
+house.add(bush3);
+
+//Graves
+const graveGeometry = new THREE.BoxGeometry(0.6, 0.8, 0.2);
+const graveMaterial = new THREE.MeshStandardMaterial();
+
+const graves = new THREE.Group();
+scene.add(graves);
+
+for (let i = 0; i < 30; i++) {
+  const angle = Math.random() * Math.PI * 2;
+
+  const grave = new THREE.Mesh(graveGeometry, graveMaterial);
+
+  graves.add(grave);
+}
 
 /**
- * Lights
+ * Lights------------------------------
  */
-// Ambient light
+// Ambient light------------------------------
 const ambientLight = new THREE.AmbientLight("#ffffff", 0.5);
 scene.add(ambientLight);
 
@@ -47,7 +105,7 @@ directionalLight.position.set(3, 2, -8);
 scene.add(directionalLight);
 
 /**
- * Sizes
+ * Sizes------------------------------
  */
 const sizes = {
   width: window.innerWidth,
@@ -55,21 +113,21 @@ const sizes = {
 };
 
 window.addEventListener("resize", () => {
-  // Update sizes
+  // Update sizes------------------------------
   sizes.width = window.innerWidth;
   sizes.height = window.innerHeight;
 
-  // Update camera
+  // Update camera------------------------------
   camera.aspect = sizes.width / sizes.height;
   camera.updateProjectionMatrix();
 
-  // Update renderer
+  // Update renderer------------------------------
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
 /**
- * Camera
+ * Camera------------------------------
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(
@@ -83,12 +141,12 @@ camera.position.y = 2;
 camera.position.z = 5;
 scene.add(camera);
 
-// Controls
+// Controls------------------------------
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 
 /**
- * Renderer
+ * Renderer------------------------------
  */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
@@ -97,19 +155,19 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 /**
- * Animate
+ * Animate------------------------------
  */
 const timer = new Timer();
 
 const tick = () => {
-  // Timer
+  // Timer------------------------------
   timer.update();
   const elapsedTime = timer.getElapsed();
 
-  // Update controls
+  // Update controls------------------------------
   controls.update();
 
-  // Render
+  // Render------------------------------
   renderer.render(scene, camera);
 
   // Call tick again on the next frame
